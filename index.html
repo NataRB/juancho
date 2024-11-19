@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Juego "Dive into English"</title>
+  <style>
+    body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-image: radial-gradient(circle at -6.05% 40.12%, #a158ff 0, #684bff 25%, #003cff 50%, #002edb 75%, #0022b9 100%);
+            margin: 0;
+            padding: 20px;
+            color: #fff;
+            overflow: hidden;
+        }
+        #pun{
+            color: #000;
+        }
+
+        .main-container {
+            max-width: 600px;
+            margin: auto;
+            padding: 30px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 3em;
+            color: #333;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.6);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+        }
+
+        .modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh; /* Establece una altura máxima */
+    overflow-y: auto; /* Habilita el desplazamiento vertical */
+    animation: fadeIn 0.5s;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    color: #000;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #e74c3c;
+            cursor: pointer;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 18px;
+            margin-top: 10px;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+        }
+
+        .login-container {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .login-input {
+            padding: 10px;
+            font-size: 18px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: 80%;
+            max-width: 300px;
+            margin-bottom: 20px;
+            transition: border 0.3s;
+        }
+
+        .login-input:focus {
+            border: 1px solid #3498db;
+            outline: none;
+        }
+
+        .login-button {
+            background-color: #f39c12;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .login-button:hover {
+            background-color: #e67e22;
+        }
+
+        .timer-level {
+            color: black; /* Color negro para el nivel y tiempo */
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        #question {
+            color: black; /* Color negro para la pregunta */
+            font-size: 1.5em;
+            margin: 20px 0;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 1.2em;
+            margin-top: 10px;
+            display: none; /* Inicialmente oculto */
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #faf5f5;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: #3498db;
+            width: 0;
+            transition: width 0.3s;
+        }
+
+  </style>
+</head>
+<body>
+  <div class="main-container" id="mainContainer">
+    <h1>"Dive into English"</h1>
+    <div class="login-container" id="loginContainer">
+      <input type="text" id="username" class="login-input" placeholder="Ingresa tu nombre" />
+      <input type="password" id="password" class="login-input" placeholder="Ingresa tu contraseña" />
+      <button class="login-button" onclick="startGame()">Entrar</button>
+    </div>
+    <div id="game" class="game-container hidden">
+      <div id="levelAlert" class="hidden"></div>
+      <div class="timer-level">
+        <p id="level">Nivel: <span id="levelValue">1</span></p>
+        <p id="timer">Tiempo: <span id="timerValue">70</span> s</p>
+      </div>
+      <p id="question">¿Cuál es la forma correcta?</p>
+      <div id="options" class="options-container"></div>
+      <div class="error-message" id="errorMessage">Respuesta incorrecta. Intenta de nuevo.</div>
+      <button id="next" class="hidden" onclick="nextLevel()">Siguiente</button>
+      <button id="modalBtn"><i class="fas fa-question-circle"></i> !!aprende mas !!</button>
+      <div class="progress-bar">
+        <div class="progress" id="progress"></div>
+      </div>
+    </div>
+    <div id="score" class="score-container hidden">
+      <p id="pun">Puntuación: <span id="scoreValue" style="color: #000;"></span> de <span id="totalQuestions" style="color: #000;"></span></p>
+      <p id="feedback" class="feedback"></p>
+      <button class="restart-button" onclick="restartGame()">Reiniciar Juego</button>
+    </div>
+  </div>
+
+  <!-- Modal para información sobre el verbo "to be" -->
+  <div id="myModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>El Verbo "To Be"</h2>
+        <p>El verbo "to be" es fundamental en inglés y tiene múltiples usos:</p>
+        <h3>1. Identidad y Características</h3>
+        <p>Se usa para describir la identidad de algo o alguien, así como para describir características o estados.</p>
+        <ul>
+            <li><strong>Am:</strong> Utilizado solo con "I" (yo). Ejemplo: "I am a student."</li>
+            <li><strong>Is:</strong> Utilizado con "He", "She", "It". Ejemplos: "He is a teacher.", "It is a sunny day."</li>
+            <li><strong>Are:</strong> Utilizado con "You", "We", "They". Ejemplos: "You are a good friend.", "They are happy."</li>
+        </ul>
+        <h3>2. Ubicación y Estado</h3>
+        <p>También se utiliza para indicar dónde se encuentra algo o alguien, o para expresar un estado emocional o físico.</p>
+        <ul>
+            <li><strong>Ejemplos:</strong></li>
+            <li>"She is at the park."</li>
+            <li>"We are tired."</li>
+            <li>"They are excited."</li>
+        </ul>
+        <h3>3. Pasado del Verbo "To Be"</h3>
+        <p>Las formas en pasado son "was" y "were".</p>
+        <ul>
+            <li>"Was" para "I", "He", "She", "It". Ejemplo: "I was at home yesterday."</li>
+            <li>"Were" para "You", "We", "They". Ejemplo: "They were in the park last weekend."</li>
+        </ul>
+
+        <h2>Presente Simple</h2>
+        <p>El presente simple se utiliza para expresar acciones habituales o hechos generales.</p>
+        <h3>1. Estructura</h3>
+        <ul>
+            <li>Con "He", "She", "It", el verbo lleva una "s" o "es" al final.</li>
+            <li>Con "I", "You", "We", "They", el verbo permanece en su forma base.</li>
+        </ul>
+        <h3>2. Ejemplos</h3>
+        <ul>
+            <li><strong>Acción Habitual:</strong> "She plays tennis every weekend."</li>
+            <li><strong>Verdad General:</strong> "The sun rises in the east."</li>
+            <li><strong>Rutina:</strong> "I drink coffee in the morning."</li>
+        </ul>
+        <p>¡Practica estos conceptos para mejorar tu inglés!</p>
+    </div>
+  </div>
+<!-- Modal para el cambio de nivel -->
+  <div id="levelChangeModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Cambio de Nivel</h2>
+      <p>¡Felicidades! Has alcanzado el Nivel 3, donde empezaremos a practicar el Presente Simple.</p>
+    </div>
+  </div>
+
+  <script>
+    const levels = [
+      {
+        questions: [
+          { question: "The ocean ___ very deep.", options: ["am", "is", "are"], answer: "is" },
+          { question: "They ___ sailing today.", options: ["am", "is", "are"], answer: "are" },
+          { question: "Whales ___ mammals.", options: ["am", "is", "are"], answer: "are" },
+          { question: "The coral reef ___ colorful.", options: ["am", "is", "are"], answer: "is" },
+        ]
+      },
+      {
+                questions: [
+                    { question: "They ___ not at the beach.", options: ["am", "is", "are"], answer: "are" },
+                    { question: "___ she a marine biologist?", options: ["Is", "Are", "Am"], answer: "Is" },
+                    { question: "I ___ not ready to dive.", options: ["am", "is", "are"], answer: "am" },
+                    { question: "___ you interested in marine life?", options: ["Am", "Is", "Are"], answer: "Are" },
+                    { question: "The captain ___ not on the ship.", options: ["am", "is", "are"], answer: "is" },
+                    { question: "___ they friends?", options: ["Is", "Are", "Am"], answer: "Are" },
+                ]
+            },
+            {
+    questions: [
+        { question: "The fisherman ___ early every morning.", options: ["go", "goes", "going"], answer: "goes" },
+        { question: "They ___ fish to sell at the market.", options: ["catch", "catches", "catching"], answer: "catch" },
+        { question: "She ___ the tide charts before going surfing.", options: ["check", "checks", "checking"], answer: "checks" },
+        { question: "He ___ on the beach every Sunday.", options: ["run", "runs", "running"], answer: "runs" },
+        { question: "Dolphins ___ in groups called pods.", options: ["swim", "swims", "swimming"], answer: "swim" },
+        { question: "The tide ___ in and out daily.", options: ["come", "comes", "coming"], answer: "comes" },
+        { question: "They ___ the beach for litter every morning.", options: ["clean", "cleans", "cleaning"], answer: "clean" },
+        { question: "He ___ starfish along the shore.", options: ["find", "finds", "finding"], answer: "finds" },
+        { question: "Seagulls ___ over the waves.", options: ["fly", "flies", "flying"], answer: "fly" },
+        { question: "I ___ sandcastles when I visit the beach.", options: ["build", "builds", "building"], answer: "build" },
+    ]
+},
+
+{
+    questions: [
+    { question: "I ___ not like seafood.", options: ["do", "don't", "does", "doesn't"], answer: "do" },
+        { question: "She ___ like to swim in the ocean.", options: ["do", "does", "doesn't", "don't"], answer: "does" },
+        { question: "We ___ play volleyball on Sundays.", options: ["do", "don't", "does", "doesn't"], answer: "don't" },
+        { question: "They ___ have a boat for diving.", options: ["do", "does", "don't", "doesn't"], answer: "don't" },
+        { question: "He ___ like to visit the beach.", options: ["do", "does", "don't", "doesn't"], answer: "doesn't" },
+        { question: "You ___ enjoy snorkeling with me.", options: ["do", "don't", "does", "doesn't"], answer: "do" },
+        { question: "I ___ think dolphins are amazing.", options: ["do", "don't", "does", "doesn't"], answer: "do" },
+        { question: "She ___ like jellyfish.", options: ["do", "does", "don't", "doesn't"], answer: "doesn't" },
+        { question: "We ___ need more time to dive.", options: ["do", "don't", "does", "doesn't"], answer: "do" },
+        { question: "They ___ want to go scuba diving.", options: ["do", "don't", "does", "doesn't"], answer: "do" },
+    ]
+},
+
+
+    ];
+
+    let currentLevel = 0;
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let timer;
+    let timeLeft = 100; // Tiempo de 70 segundos
+
+    function startGame() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      if (!username || !password) {
+        alert("Por favor, completa ambos campos.");
+        return;
+      }
+      document.getElementById('loginContainer').classList.add('hidden');
+      document.getElementById('game').classList.remove('hidden');
+      score = 0;
+      currentLevel = 0;
+      currentQuestionIndex = 0;
+      document.getElementById('levelValue').innerText = currentLevel + 1;
+      resetTimer();
+      showQuestion();
+    }
+
+    function resetTimer() {
+      timeLeft = 100; // Tiempo establecido a 70 segundos
+      document.getElementById('timerValue').innerText = timeLeft;
+      document.getElementById('progress').style.width = '0%';
+      clearInterval(timer);
+      timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timerValue').innerText = timeLeft;
+        document.getElementById('progress').style.width = ((70 - timeLeft) / 70) * 100 + '%';
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          endGame();
+        }
+      }, 1000);
+    }
+
+    function showQuestion() {
+      if (currentLevel < levels.length) {
+        const levelQuestions = levels[currentLevel].questions;
+
+        if (currentQuestionIndex < levelQuestions.length) {
+          const questionElement = document.getElementById('question');
+          const optionsElement = document.getElementById('options');
+          questionElement.innerText = levelQuestions[currentQuestionIndex].question;
+          optionsElement.innerHTML = '';
+
+          levelQuestions[currentQuestionIndex].options.forEach(option => {
+            const button = document.createElement('button');
+            button.innerText = option;
+            button.onclick = () => checkAnswer(option);
+            optionsElement.appendChild(button);
+          });
+
+          document.getElementById('next').classList.add('hidden');
+          document.getElementById('errorMessage').classList.add('hidden'); // Ocultar el mensaje de error
+        } else {
+          currentLevel++;
+          currentQuestionIndex = 0;
+          showLevelChangeAlert();
+          document.getElementById('next').classList.remove('hidden');
+        }
+      } else {
+        endGame();
+      }
+    }
+
+    function showLevelChangeAlert() {
+  const levelChangeModal = document.getElementById('levelChangeModal');
+  levelChangeModal.style.display = 'block';
+
+  // Actualizar el contenido del modal dinámicamente si es necesario
+  const modalContent = levelChangeModal.querySelector('p');
+  modalContent.innerText = `¡Felicidades! Has alcanzado el Nivel ${currentLevel + 1}. ¡Prepárate para nuevas preguntas!`;
+
+  document.getElementById('levelValue').innerText = currentLevel + 1;
+}
+// Cerrar el modal de nivel también
+const levelModalClose = document.querySelector('#levelChangeModal .close');
+levelModalClose.onclick = function() {
+  document.getElementById('levelChangeModal').style.display = 'none';
+};
+
+// Cierre al hacer clic fuera del modal
+window.onclick = function(event) {
+  if (event.target === modal) {
+    modal.style.display = "none";
+  } else if (event.target === document.getElementById('levelChangeModal')) {
+    document.getElementById('levelChangeModal').style.display = "none";
+  }
+};
+
+
+
+    function checkAnswer(selected) {
+      const levelQuestions = levels[currentLevel].questions;
+      if (selected === levelQuestions[currentQuestionIndex].answer) {
+        score += 1; // Aumentar la puntuación en 10 puntos por respuesta correcta
+        document.getElementById('errorMessage').classList.add('hidden'); // Ocultar mensaje de error
+        currentQuestionIndex++;
+        showQuestion();
+      } else {
+        document.getElementById('errorMessage').classList.remove('hidden'); // Mostrar mensaje de error
+      }
+    }
+
+    function nextLevel() {
+      document.getElementById('next').classList.add('hidden');
+      showQuestion();
+    }
+
+    function endGame() {
+      clearInterval(timer);
+      document.getElementById('game').classList.add('hidden');
+      document.getElementById('score').classList.remove('hidden');
+      document.getElementById('scoreValue').innerText = score;
+
+      const totalQuestions = levels.reduce((acc, level) => acc + level.questions.length, 0);
+      document.getElementById('totalQuestions').innerText = totalQuestions;
+
+      provideFeedback();
+    }
+
+    function provideFeedback() {
+      const feedback = document.getElementById('feedback');
+      const totalQuestions = levels.reduce((acc, level) => acc + level.questions.length, 0);
+      if (score === totalQuestions * 10) {
+        feedback.innerText = "¡Increíble! Respondiste todas las preguntas correctamente.";
+      } else if (score >= (totalQuestions * 7)) {
+        feedback.innerText = "¡Buen trabajo! Tienes un buen dominio del verbo 'to be' y presente simple.";
+      } else {
+        feedback.innerText = "¡Sigue practicando! Puedes mejorar con más práctica.";
+      }
+    }
+
+    function restartGame() {
+      startGame();
+    }
+
+    // Modal para información sobre el verbo "to be"
+    const modal = document.getElementById("myModal");
+    const btn = document.getElementById("modalBtn");
+    const span = document.getElementsByClassName("close")[0];
+
+    btn.onclick = function() {
+      modal.style.display = "block";
+    }
+
+    span.onclick = function() {
+      modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+    }
+    function provideFeedback() {
+      const feedback = document.getElementById('feedback');
+      const totalQuestions = levels.reduce((acc, level) => acc + level.questions.length, 0);
+      if (score === totalQuestions * 10) {
+        feedback.innerText = "¡Increíble! Respondiste todas las preguntas correctamente.";
+      } else if (score >= (totalQuestions * 7)) {
+        feedback.innerText = "¡Buen trabajo! Tienes un buen dominio del verbo 'to be' y presente simple.";
+      } else {
+        feedback.innerText = "¡Sigue aprendiendo y practicando! El inglés es una puerta a muchas oportunidades.";
+      }
+      // Mensaje de ánimo adicional
+      const motivationMessage = document.createElement('p');
+      motivationMessage.innerText = "¡Sigue aprendiendo y practicando! El inglés es una puerta a muchas oportunidades.";
+      motivationMessage.style.fontSize = "1.2em";
+      motivationMessage.style.marginTop = "15px";
+      motivationMessage.style.color = "black";
+      feedback.appendChild(motivationMessage);
+    }
+  </script>
+</body>
+</html>
